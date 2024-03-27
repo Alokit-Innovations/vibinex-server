@@ -12,7 +12,7 @@ const GitAliasForm: React.FC<{ expanded: boolean }> = ({ expanded }) => {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const response = await axios.get(`/api/alias`, { params: { expanded } });
+				const response = await axios.get<{ aliasProviderMap: AliasProviderMap }>(`/api/alias`, { params: { expanded } });
 				if (!response.data?.aliasProviderMap) {
 					throw new Error('Failed to fetch Git email aliases');
 				}
@@ -66,13 +66,14 @@ const GitAliasForm: React.FC<{ expanded: boolean }> = ({ expanded }) => {
 		}
 	};
 
+	if (loading) {
+		return (<div>Loading...</div>)
+	}
 	return (
 		<form onSubmit={handleSubmit}>
-			{loading ? (
-				<div>Loading...</div>
-			) : (gitAliasMap?.providerMaps && gitAliasMap.providerMaps.length > 0) ? (
+			{(gitAliasMap?.providerMaps && gitAliasMap.providerMaps.length > 0) ? (
 				<>
-					<h3 className="font-bold mb-4">Please enter Github/Bitbucket usernames and click Submit:</h3>
+					<h3 className="font-semibold my-4 ml-4">Please enter Github/Bitbucket usernames and click Submit:</h3>
 
 					{/* Header */}
 					<div className="grid grid-cols-3 border-b text-blue-800">
