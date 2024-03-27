@@ -25,8 +25,8 @@ const Button = (props: ButtonProps) => {
 	}
 	const basicClass = 'inline-flex items-center justify-center relative cursor-pointer align-middle disabled:cursor-default box-border min-w-max py-1 px-4 rounded-md transition-all ';
 	const variantClasses = {
-		'contained': "bg-primary-main text-secondary-main disabled:bg-action-inactive disabled:hover:bg-transparent hover:bg-primary-dark ",
-		'outlined': "border-secondary-main border-2 rounded ",
+		'contained': "bg-primary-main text-secondary-main disabled:bg-action-inactive disabled:hover:bg-transparent hover:bg-primary-main/80 hover:text-secondary-main/80 ",
+		'outlined': "border-secondary-main text-secondary-main border-2 rounded hover:border-secondary-main/80 hover:text-secondary-main/80 ",
 		'text': "",
 	}
 

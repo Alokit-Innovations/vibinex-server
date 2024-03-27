@@ -6,6 +6,7 @@ import RudderContext from "../components/RudderContext";
 import { getAndSetAnonymousIdFromLocalStorage } from "../utils/rudderstack_initialize";
 import { getAuthUserId, getAuthUserName } from "../utils/auth";
 import ProviderLogo from "../components/ProviderLogo";
+import LeadFormDialogWrapper from "../components/LeadFormDialogWrapper";
 
 const Hero = (props: { ctaLink: string }) => {
 	const { rudderEventMethods } = React.useContext(RudderContext);
@@ -34,6 +35,7 @@ const Hero = (props: { ctaLink: string }) => {
 			bookDemoButton?.removeEventListener('click', handleBookDemo);
 		};
 	}, [rudderEventMethods, session]);
+
 	return (
 		<div className='flex items-center justify-center h-fit bg-black'>
 			<section className='p-5 text-primary-light my-auto pt-1 md:w-2/3 xl:w-1/2 text-center'>
@@ -47,9 +49,11 @@ const Hero = (props: { ctaLink: string }) => {
 					<Button id="cta-btn" variant="contained" href={props.ctaLink} className='text-center w-[45%] p-3 sm:p-4 px-20 rounded-lg font-bold text-[20px] sm:text-[25px]'>
 						Get Started
 					</Button>
-					<Button id="book-demo-btn" variant="outlined" href="https://calendly.com/avikalp-gupta/30min" target="_blank" className='text-center w-[45%] sm:p-4 p-3 px-20 rounded-lg font-bold sm:text-[25px] text-[20px]'>
-						Book demo
-					</Button>
+					<LeadFormDialogWrapper>
+						<Button id="book-demo-btn" variant="outlined" className='text-center w-[45%] sm:p-4 p-3 px-20 rounded-lg font-bold sm:text-[25px] text-[20px]'>
+							Book demo
+						</Button>
+					</LeadFormDialogWrapper>
 				</div>
 				<p className="text-lg sm:text-lg mb-10 text-gray-300" title="100% privacy & data protection">
 					Your code <span className="text-primary-main">never leaves your systems</span> by design
