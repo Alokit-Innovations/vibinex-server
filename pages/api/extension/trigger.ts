@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getToken } from 'next-auth/jwt';
 import { getRepoConfigByUserAndRepo } from '../../../utils/db/repos';
 import { DbUser, getUserByAlias } from '../../../utils/db/users';
+import { publishMessage } from '../../../utils/pubsub/pubsubClient';
 
 export default async function triggeHandler(req: NextApiRequest, res: NextApiResponse) {
 	// For cors prefetch options request
@@ -10,7 +11,7 @@ export default async function triggeHandler(req: NextApiRequest, res: NextApiRes
 		return;
 	}
 	// For normal requests
-	console.info("[extension/triggeHandler] Getting setup repos info for ", req.body.url);
+	console.info("[extension/triggeHandler] Triggering DPU for ", req.body.url);
 
 	if (req.method !== 'POST') {
 		res.status(405).json({ error: 'Method Not Allowed', message: 'Only POST requests are allowed' });
@@ -20,11 +21,11 @@ export default async function triggeHandler(req: NextApiRequest, res: NextApiRes
 		console.error("[extension/triggeHandler] Error getting user token", err);
 		return null;
 	});
-    if (!user?.email) {
+    if (!user || !user.email) {
         console.error("[extension/triggeHandler] Error getting user");
         res.status(401).json({ error: 'Unauthenticated', message: 'Incorrect auth token in request' });
-		return;
-	}
+        return;
+    }
 	const { url } = req.body;
 	if (!url) {
         console.error("[extension/triggeHandler] Error parsing url");
@@ -63,8 +64,19 @@ async function triggerDPU(url: string, userEmail: string) {
     // prepare body
     const triggerBody = prepareBody(repoProvider, repoOwner, repoName, prNumber, repoConfig);
     // get topic id
+    const topicName = users[0].topic_name;
+    if (!topicName) {
+        console.error(`[triggerDPU] Unable to find topic name for user ${JSON.stringify(users[0])}`);
+		throw new Error("Topic name not found in db user");
+    }
     // publish
-    throw new Error('Function not implemented.');
+    console.info(`[extension/triggerDPU] Publishing message ${JSON.stringify(triggerBody)} to ${topicName}`);
+    await publishMessage(topicName, triggerBody, "manual_trigger")
+		.catch((error) => {
+			console.error(`[extension/triggerDPU] Failed to publish message on ${topicName}:`, error);
+            throw new Error('Unable to publish message');
+		});
+    return true;
 }
 
 function parseURL(url: string) {
@@ -95,7 +107,7 @@ function parseURL(url: string) {
     
     // Extract the repo provider from the URL
     const repoProvider = "github";
-    
+    console.log(`[trigger/parseURL] Parsed values = ${repoProvider}, ${repoOwner}, ${repoName}, ${prNumber}`);
     // Return the extracted information as an object
     return {
         repoProvider,
